@@ -11,7 +11,7 @@ CardGuard is a **user-facing credit card validation application** that combines 
 **Who it's for:** Developers integrating payment systems, QA engineers testing checkout flows, and anyone learning how card validation works.
 
 **What problem it solves:** Real card validation requires more than a Luhn check. Weak or predictable numbers (like `1111 1111 1111 1111`) can pass Luhn but fail in production. CardGuard catches these with entropy and repetition analysis, and presents results through a clear, confidence-based UI.
-
+This does not detect real or fake credit card numbers it detects if a credit card number **looks** real or fake.
 ---
 
 ## User Interface Overview
@@ -44,7 +44,7 @@ Think of it like a passport checkpoint: you show your document (card number), an
 
 ---
 
-## How Validation Works (Conceptual)
+## How Validation Works (Find also in original code)
 
 ### Luhn Check
 
@@ -52,11 +52,11 @@ The **Luhn algorithm** is a standard checksum used by the card industry. It catc
 
 ### Entropy Analysis
 
-**Entropy** measures how “random” or unpredictable the digits are. A number like `1111 1111 1111 1111` has very low entropy (almost no randomness). A well-mixed number like `4539 1488 0343 6467` has higher entropy. CardGuard uses this to flag weak, guessable numbers. **Analogy:** It’s like judging how hard a lock combination would be to guess.
+**Entropy** measures how “random” or unpredictable the digits are. A number like `1111 1111 1111 1111` has very low entropy (almost no randomness). A well-mixed number like `4539 1488 0343 6467` has higher entropy. CardGuard uses this to flag weak, guessable numbers. **Analogy:** How hard a lock combination would be to guess.
 
 ### Repetition Detection
 
-**Repetition analysis** looks for obvious patterns: repeated digits (`1111`), simple sequences (`1234`), or copy-paste-like blocks. These often indicate test or fake numbers. **Analogy:** It’s like spotting a weak password that uses `12345678`.
+**Repetition analysis** looks for obvious patterns: repeated digits (`1111`), simple sequences (`1234`), or copy-paste-like blocks. These often indicate test or fake numbers. **Analogy:**  Spotting a weak password that uses `12345678`. Its for blocks of repetitive patterns hence why it works so well with the entropy check which goes bit by bit.
 
 ---
 
