@@ -1,0 +1,13 @@
+# Build outputs
+card_validator
+card_validator.exe
+*.o
+*.obj
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

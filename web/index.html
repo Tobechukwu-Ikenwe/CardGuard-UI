@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CardGuard — Credit Card Validation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1216;
+      --surface: #1a1e26;
+      --surface-raised: #232931;
+      --border: #2d3544;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1.5rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      letter-spacing: 0.1em;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: 500;
+      font-size: 0.9375rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .result-panel {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .result-panel.visible {
+      display: block;
+    }
+
+    .result-panel.valid-high {
+      background: rgba(63, 185, 80, 0.08);
+      border-color: rgba(63, 185, 80, 0.3);
+    }
+
+    .result-panel.valid-low {
+      background: rgba(210, 153, 34, 0.08);
+      border-color: rgba(210, 153, 34, 0.3);
+    }
+
+    .result-panel.invalid {
+      background: rgba(248, 81, 73, 0.08);
+      border-color: rgba(248, 81, 73, 0.3);
+    }
+
+    .result-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-panel.valid-high .result-label { color: var(--success); }
+    .result-panel.valid-low .result-label { color: var(--warning); }
+    .result-panel.invalid .result-label { color: var(--danger); }
+
+    .confidence-bar {
+      height: 6px;
+      background: var(--surface-raised);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.75rem 0;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .confidence-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .checks {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.875rem;
+    }
+
+    .checks li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+    }
+
+    .check-icon {
+      font-size: 1rem;
+      width: 1.25rem;
+      text-align: center;
+    }
+
+    .check-icon.pass { color: var(--success); }
+    .check-icon.fail { color: var(--danger); }
+    .check-icon.neutral { color: var(--text-muted); }
+
+    .time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    .warning-msg {
+      font-size: 0.8125rem;
+      color: var(--warning);
+      margin-top: 0.75rem;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>CardGuard</h1>
+    <p class="subtitle">Local credit card validation — Luhn, entropy & repetition</p>
+
+    <div class="input-row">
+      <input
+        type="text"
+        id="cardInput"
+        placeholder="4539 1488 0343 6467"
+        autocomplete="off"
+        inputmode="numeric"
+        maxlength="19"
+      />
+      <button type="button" id="validateBtn">Validate</button>
+    </div>
+
+    <div class="result-panel" id="resultPanel">
+      <div class="result-label" id="resultLabel"></div>
+      <div class="confidence-bar">
+        <div class="confidence-fill" id="confidenceFill"></div>
+      </div>
+      <div class="confidence-text" id="confidenceText"></div>
+      <ul class="checks" id="checksList"></ul>
+      <div class="time" id="timeElapsed"></div>
+      <div class="warning-msg" id="warningMsg"></div>
+    </div>
+  </div>
+
+  <p class="footer">All processing is local. No data is stored or sent over the network.</p>
+
+  <script>
+    const ENTROPY_THRESHOLD = 3.5;
+
+    function normalize(input) {
+      return input.replace(/\D/g, '');
+    }
+
+    function luhnCheck(digits) {
+      if (!digits.length) return false;
+      let sum = 0;
+      let alternate = false;
+      for (let i = digits.length - 1; i >= 0; i--) {
+        let n = parseInt(digits[i], 10);
+        if (alternate) {
+          n *= 2;
+          if (n > 9) n -= 9;
+        }
+        sum += n;
+        alternate = !alternate;
+      }
+      return sum % 10 === 0;
+    }
+
+    function entropy(digits) {
+      if (!digits.length) return 0;
+      const freq = {};
+      for (const c of digits) {
+        freq[c] = (freq[c] || 0) + 1;
+      }
+      let e = 0;
+      const len = digits.length;
+      for (const k in freq) {
+        const p = freq[k] / len;
+        if (p > 0) e -= p * Math.log2(p);
+      }
+      return e;
+    }
+
+    function repetitionCheck(digits) {
+      if (digits.length < 4) return true;
+      const allSame = /^(\d)\1+$/.test(digits);
+      if (allSame) return false;
+      if (digits.length >= 8) {
+        const block = digits.slice(0, 4);
+        let count = 1;
+        for (let i = 4; i + 4 <= digits.length; i += 4) {
+          if (digits.slice(i, i + 4) === block) count++;
+          else break;
+        }
+        if (count >= 4) return false;
+      }
+      let seq = true;
+      for (let i = 1; i < digits.length; i++) {
+        if ((parseInt(digits[i], 10) - parseInt(digits[i - 1], 10) + 10) % 10 !== 1) {
+          seq = false;
+          break;
+        }
+      }
+      return !seq;
+    }
+
+    function detectIssuer(digits) {
+      if (digits.length < 2) return 'UNKNOWN';
+      const first = digits[0];
+      const two = parseInt(digits.slice(0, 2), 10);
+      const four = parseInt(digits.slice(0, 4), 10);
+      if (first === '4') return 'VISA';
+      if (two >= 51 && two <= 55) return 'MASTERCARD';
+      if (two === 34 || two === 37) return 'AMEX';
+      if (four === 6011 || two === 65) return 'DISCOVER';
+      return 'UNKNOWN';
+    }
+
+    function formatCardInput(value) {
+      const digits = value.replace(/\D/g, '').slice(0, 19);
+      return digits.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function validate() {
+      const raw = document.getElementById('cardInput').value;
+      const digits = normalize(raw);
+
+      const start = performance.now();
+      const lengthOk = digits.length >= 13 && digits.length <= 19;
+      const issuer = detectIssuer(digits);
+      const luhnOk = luhnCheck(digits);
+      const ent = entropy(digits);
+      const entropyOk = ent >= ENTROPY_THRESHOLD;
+      const repOk = repetitionCheck(digits);
+      const elapsed = (performance.now() - start) * 1e6;
+
+      const valid = luhnOk;
+      const highConfidence = valid && entropyOk && repOk;
+
+      let status, statusClass, confidence;
+      if (valid && highConfidence) {
+        status = 'VALID (high confidence)';
+        statusClass = 'valid-high';
+        confidence = Math.min(100, Math.round(50 + ent * 12));
+      } else if (valid) {
+        status = 'VALID (low confidence)';
+        statusClass = 'valid-low';
+        confidence = Math.min(50, Math.round(ent * 15));
+      } else {
+        status = 'INVALID';
+        statusClass = 'invalid';
+        confidence = Math.max(5, Math.round(ent * 3));
+      }
+
+      const panel = document.getElementById('resultPanel');
+      panel.className = 'result-panel visible ' + statusClass;
+      document.getElementById('resultLabel').textContent = status;
+      document.getElementById('confidenceFill').style.width = confidence + '%';
+      document.getElementById('confidenceFill').style.backgroundColor =
+        statusClass === 'valid-high' ? 'var(--success)' :
+        statusClass === 'valid-low' ? 'var(--warning)' : 'var(--danger)';
+      document.getElementById('confidenceText').textContent =
+        `Confidence: ${confidence}%`;
+      document.getElementById('timeElapsed').textContent =
+        `Verification completed in ${Math.round(elapsed)} ns`;
+
+      const checks = [
+        { pass: lengthOk, label: `Length (${digits.length || '—'} digits)` },
+        { pass: issuer !== 'UNKNOWN', label: `Issuer: ${issuer}` },
+        { pass: luhnOk, label: 'Luhn checksum' },
+        { pass: entropyOk, label: `Entropy (${ent.toFixed(2)} bits)` },
+        { pass: repOk, label: 'Repetition analysis' },
+      ];
+
+      document.getElementById('checksList').innerHTML = checks.map(c => {
+        const icon = c.pass ? '✓' : (c.label.startsWith('Issuer') && issuer === 'UNKNOWN' ? '—' : '✗');
+        const cls = c.pass ? 'pass' : (icon === '—' ? 'neutral' : 'fail');
+        return `<li><span class="check-icon ${cls}">${icon}</span>${c.label}</li>`;
+      }).join('');
+
+      const warning = valid && !highConfidence
+        ? '⚠ This number passes Luhn but has low entropy. Often seen with test numbers.'
+        : '';
+      document.getElementById('warningMsg').textContent = warning;
+    }
+
+    const input = document.getElementById('cardInput');
+    const btn = document.getElementById('validateBtn');
+
+    input.addEventListener('input', (e) => {
+      const pos = e.target.selectionStart;
+      const oldLen = e.target.value.length;
+      e.target.value = formatCardInput(e.target.value);
+      const newLen = e.target.value.length;
+      const newPos = Math.max(0, pos + (newLen - oldLen));
+      e.target.setSelectionRange(newPos, newPos);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') validate();
+    });
+
+    btn.addEventListener('click', validate);
+  </script>
+</body>
+</html>
