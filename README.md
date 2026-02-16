@@ -111,19 +111,19 @@ Static app — no backend. Serve the `web/` folder on a port:
 
 **Python:**
 ```bash
-cd web && python -m http.server 8765
+cd web && python -m http.server 9999
 ```
 Open http://localhost:8765
 
 **Node.js (npx serve):**
 ```bash
-npx serve web -p 8765
+npx serve web -p 9999
 ```
 Open http://localhost:8765
 
 **Direct:** Open `web/index.html` in a browser (file://). Validation runs entirely client-side.
 
-**Linux / macOS:** `./run.sh` serves on port 8765 and opens the browser.
+**Linux / macOS:** `./run.sh` serves on port 9999 and opens the browser.
 
 ### CLI (C++)
 
