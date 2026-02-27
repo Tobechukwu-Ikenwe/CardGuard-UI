@@ -10,9 +10,10 @@ CardGuard is a **user-facing credit card validation application** that combines 
 
 **Who it's for:** Developers integrating payment systems, QA engineers testing checkout flows, and anyone learning how card validation works.
 
-**What problem it solves:** Real card validation requires more than a Luhn check. Weak or predictable numbers (like `1111 1111 1111 1111`) can pass Luhn but fail in production. CardGuard catches these with entropy and repetition analysis, and presents results through a clear, confidence-based UI.
-This does not detect real or fake credit card numbers it detects if a credit card number **looks** real or fake.
----
+**What problem it solves:**
+Real card validation requires more than a Luhn check. Weak or predictable numbers (like `1111 1111 1111 1111`) can pass Luhn but fail in production. CardGuard catches these with entropy and repetition analysis, and presents results through a clear, confidence-based UI.
+This does not detect real or fake credit card numbers it detects if a credit card number looks real or fake.
+
 
 ## User Interface Overview
 
